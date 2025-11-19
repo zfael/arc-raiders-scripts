@@ -66,10 +66,6 @@ impl AppState {
         self.inner.read().semiauto_timing
     }
     
-    pub fn is_mouse_held(&self) -> bool {
-        self.inner.read().mouse_held
-    }
-    
     pub fn get_last_click_time(&self) -> Option<Instant> {
         self.inner.read().last_click_time
     }

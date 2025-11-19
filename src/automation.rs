@@ -14,7 +14,6 @@ pub fn start_automation(state: AppState, rx: Receiver<InputEvent>) -> anyhow::Re
         let mut enigo = Enigo::new(&Settings::default()).expect("Failed to create Enigo");
         let mut last_real_click: Option<Instant> = None;
         let mut clicking_active = false;
-        let mut sending_synthetic_click = false;
         const HOLD_THRESHOLD_MS: u64 = 100; // Consider "held" after 100ms
         
         println!("✓ Automation engine started");
@@ -24,7 +23,7 @@ pub fn start_automation(state: AppState, rx: Receiver<InputEvent>) -> anyhow::Re
             while let Ok(event) = rx.try_recv() {
                 match event {
                     InputEvent::MouseButtonDown => {
-                        if !clicking_active && !sending_synthetic_click {
+                        if !clicking_active {
                             last_real_click = Some(Instant::now());
                             clicking_active = true;
                             println!("Mouse button DOWN detected (real click)");
@@ -38,12 +37,9 @@ pub fn start_automation(state: AppState, rx: Receiver<InputEvent>) -> anyhow::Re
                         }
                     }
                     InputEvent::MouseButtonUp => {
-                        // Only process UP events if we're not in the middle of sending synthetic clicks
-                        if !sending_synthetic_click {
-                            last_real_click = None;
-                            clicking_active = false;
-                            println!("Mouse button UP detected");
-                        }
+                        last_real_click = None;
+                        clicking_active = false;
+                        println!("Mouse button UP detected");
                     }
                 }
             }
@@ -58,7 +54,6 @@ pub fn start_automation(state: AppState, rx: Receiver<InputEvent>) -> anyhow::Re
                         let can_click = crate::input::can_send_click(&state, delay_ms);
                         
                         if can_click {
-                            sending_synthetic_click = true;
                             if let Err(e) = send_click(&mut enigo, &state) {
                                 eprintln!("Error sending click: {:?}", e);
                             } else {
@@ -70,7 +65,6 @@ pub fn start_automation(state: AppState, rx: Receiver<InputEvent>) -> anyhow::Re
                             while rx.try_recv().is_ok() {
                                 // Discard all events from our synthetic click
                             }
-                            sending_synthetic_click = false;
                         }
                     }
                 }
