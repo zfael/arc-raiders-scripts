@@ -1,7 +1,8 @@
 fn main() {
     #[cfg(windows)]
     {
-        // Embed Windows manifest for UAC elevation
-        embed_resource::compile("app.manifest", embed_resource::NONE);
+        // Create a .rc file that references the manifest
+        let mut res = embed_resource::compile("resources.rc", embed_resource::NONE);
+        res.manifest_optional();
     }
 }
