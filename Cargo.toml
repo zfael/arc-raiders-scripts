@@ -1,0 +1,42 @@
+[package]
+name = "arc-raiders-scripts"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+
+[dependencies]
+# GUI Framework
+eframe = "0.27"
+egui = "0.27"
+
+# Input Automation
+rdev = "0.5"
+enigo = "0.2"
+
+# Async Runtime & Concurrency
+tokio = { version = "1", features = ["rt-multi-thread", "time", "sync"] }
+crossbeam-channel = "0.5"
+
+# State Management
+parking_lot = "0.12"
+
+# Utilities
+anyhow = "1.0"
+rand = "0.8"
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3", features = ["shellapi", "winuser", "timeapi"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+core-graphics = "0.23"
+cocoa = "0.25"
+objc = "0.2"
+
+[build-dependencies]
+embed-resource = "2.4"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
