@@ -22,6 +22,9 @@ struct AppStateInner {
     /// Timing for semi-auto click rate (ms between clicks)
     pub semiauto_timing: u64,
     
+    /// Weapon slot for reload cancel (1 or 2)
+    pub reload_cancel_weapon_slot: u8,
+    
     /// Whether mouse is currently held down
     pub mouse_held: bool,
     
@@ -36,6 +39,7 @@ impl Default for AppStateInner {
             reload_cancel_enabled: false,
             reload_cancel_timing: crate::platform::get_default_timing(),
             semiauto_timing: 60, // 60ms = ~16.6 clicks/second
+            reload_cancel_weapon_slot: 1, // Default to weapon slot 1
             mouse_held: false,
             last_click_time: None,
         }
@@ -66,6 +70,10 @@ impl AppState {
         self.inner.read().semiauto_timing
     }
     
+    pub fn get_reload_cancel_weapon_slot(&self) -> u8 {
+        self.inner.read().reload_cancel_weapon_slot
+    }
+    
     pub fn get_last_click_time(&self) -> Option<Instant> {
         self.inner.read().last_click_time
     }
@@ -85,6 +93,10 @@ impl AppState {
     
     pub fn set_semiauto_timing(&self, timing: u64) {
         self.inner.write().semiauto_timing = timing;
+    }
+    
+    pub fn set_reload_cancel_weapon_slot(&self, slot: u8) {
+        self.inner.write().reload_cancel_weapon_slot = slot.clamp(1, 2);
     }
     
     pub fn set_mouse_held(&self, held: bool) {

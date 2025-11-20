@@ -102,9 +102,10 @@ fn send_click(enigo: &mut Enigo, state: &AppState) -> EnigoResult<()> {
     Ok(())
 }
 
-/// Execute the reload cancel sequence: Q -> 1
+/// Execute the reload cancel sequence: Q -> [1 or 2]
 fn execute_reload_cancel(enigo: &mut Enigo, state: &AppState) -> EnigoResult<()> {
     let base_timing = state.get_reload_cancel_timing();
+    let weapon_slot = state.get_reload_cancel_weapon_slot();
     
     // Wait for base timing to ensure the click is fully processed
     thread::sleep(Duration::from_millis(add_jitter(base_timing)));
@@ -115,8 +116,9 @@ fn execute_reload_cancel(enigo: &mut Enigo, state: &AppState) -> EnigoResult<()>
     // Wait between keys to ensure each registers
     thread::sleep(Duration::from_millis(add_jitter(base_timing)));
     
-    // Press 1 (switch back to gun)
-    press_key(enigo, Key::Unicode('1'), 50)?;
+    // Press weapon slot key (1 or 2)
+    let weapon_key = if weapon_slot == 1 { '1' } else { '2' };
+    press_key(enigo, Key::Unicode(weapon_key), 50)?;
     
     Ok(())
 }

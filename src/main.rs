@@ -150,6 +150,20 @@ impl eframe::App for MacroApp {
                 self.state.set_reload_cancel_enabled(reload_cancel);
             }
             ui.label("  • Automatically cancels reload animation on click");
+            
+            // Weapon slot selector (indented under reload cancel)
+            ui.horizontal(|ui| {
+                ui.add_space(20.0);
+                ui.label("Weapon Slot:");
+                let mut weapon_slot = self.state.get_reload_cancel_weapon_slot();
+                if ui.radio_value(&mut weapon_slot, 1, "Slot 1").changed() {
+                    self.state.set_reload_cancel_weapon_slot(1);
+                }
+                if ui.radio_value(&mut weapon_slot, 2, "Slot 2").changed() {
+                    self.state.set_reload_cancel_weapon_slot(2);
+                }
+            });
+            
             ui.add_space(15.0);
             
             ui.separator();
