@@ -22,7 +22,7 @@ Download pre-built binaries from the [Releases](https://github.com/zfael/arc-rai
 ## Features
 
 - **Semiauto Max Fire Rate**: Hold left mouse button to continuously fire semi-automatic weapons at maximum rate
-- **Reload Cancel**: Automatically cancels reload animations using the R→Q→1 exploit
+- **Reload Cancel**: Automatically cancels reload animations using the Q→1 key sequence
 
 ## Requirements
 
@@ -83,14 +83,16 @@ To create a new release with pre-built binaries:
 ### Semiauto Max Fire Rate
 - Detects when left mouse button is held down for >100ms
 - Sends repeated left clicks at configured rate (default: 60ms = ~16 clicks/sec)
-- Includes anti-loop protection to prevent infinite clicking
-- Adds random jitter (±10ms) to avoid pattern detection
+- Includes anti-loop protection with event filtering to prevent stuck firing
+- Adds random jitter (±5ms) to avoid pattern detection
+- Uses DOWN/UP event counter for reliable mouse release detection
 
 ### Reload Cancel
 - Triggers on every left mouse click
-- Executes key sequence: R (reload) → Q (quick-use) → 1 (weapon)
+- Executes key sequence: Q (quick-use) → 1 (weapon switch back)
 - Timing is configurable (default: 75ms on Windows, 100ms on macOS)
-- Includes random jitter for realistic timing
+- Includes random jitter (±5ms) for realistic timing
+- Key hold time: 50ms for reliable registration
 
 ## Technical Details
 
@@ -114,9 +116,10 @@ Automation Engine (enigo)
 
 ### Windows
 - Requires UAC elevation (embedded manifest handles this)
-- Uses `SendInput()` API for input simulation
+- Uses native Windows `SendInput()` API for better anti-cheat compatibility
 - High-resolution timer enabled (1ms precision)
 - May be blocked by kernel-level anti-cheat systems
+- Event filtering prevents synthetic clicks from causing stuck firing
 
 ### macOS
 - Requires Accessibility permissions grant
