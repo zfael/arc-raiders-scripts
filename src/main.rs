@@ -6,7 +6,6 @@ mod state;
 use crossbeam_channel::unbounded;
 use eframe::egui;
 use state::AppState;
-use enigo;
 
 fn main() -> anyhow::Result<()> {
     // Initialize platform-specific features

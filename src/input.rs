@@ -7,6 +7,7 @@ use std::panic;
 pub enum InputEvent {
     MouseButtonDown,
     MouseButtonUp,
+    ToggleReloadCancel, // F2 key to toggle reload cancel
 }
 
 /// Start listening for input events in a background thread
@@ -24,6 +25,9 @@ pub fn start_listener(state: AppState, tx: Sender<InputEvent>) -> anyhow::Result
                     EventType::ButtonRelease(Button::Left) => {
                         state.set_mouse_held(false);
                         let _ = tx.send(InputEvent::MouseButtonUp);
+                    }
+                    EventType::KeyPress(rdev::Key::F2) => {
+                        let _ = tx.send(InputEvent::ToggleReloadCancel);
                     }
                     _ => {}
                 }

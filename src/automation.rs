@@ -63,6 +63,16 @@ pub fn start_automation(state: AppState, rx: Receiver<InputEvent>) -> anyhow::Re
                             println!("Mouse button UP detected (stopping rapid fire)");
                         }
                     }
+                    InputEvent::ToggleReloadCancel => {
+                        // Toggle reload cancel on/off
+                        let current = state.is_reload_cancel_enabled();
+                        state.set_reload_cancel_enabled(!current);
+                        if !current {
+                            println!("🔄 RELOAD CANCEL ENABLED");
+                        } else {
+                            println!("⭕ RELOAD CANCEL DISABLED");
+                        }
+                    }
                 }
             }
 
@@ -135,6 +145,6 @@ fn press_key(enigo: &mut Enigo, key: Key, hold_ms: u64) -> EnigoResult<()> {
 fn add_jitter(base_ms: u64) -> u64 {
     let mut rng = rand::thread_rng();
     let jitter: i64 = rng.gen_range(-5..=5); // Reduced jitter to ±5ms for more consistency
-    let result = (base_ms as i64 + jitter).max(5) as u64; // Minimum 5ms
-    result
+     // Minimum 5ms
+    (base_ms as i64 + jitter).max(5) as u64
 }
