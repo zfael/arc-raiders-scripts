@@ -102,31 +102,29 @@ fn send_click(enigo: &mut Enigo, state: &AppState) -> EnigoResult<()> {
     Ok(())
 }
 
-/// Execute the reload cancel sequence: R -> Q -> 1
+/// Execute the reload cancel sequence: Q -> 1
 fn execute_reload_cancel(enigo: &mut Enigo, state: &AppState) -> EnigoResult<()> {
     let base_timing = state.get_reload_cancel_timing();
     
-    // Small initial delay to let the original click register
-    thread::sleep(Duration::from_millis(add_jitter(5)));
-    
-    // Press R (reload)
-    press_key(enigo, Key::Unicode('r'))?;
+    // Wait for base timing to ensure the click is fully processed
     thread::sleep(Duration::from_millis(add_jitter(base_timing)));
     
     // Press Q (quick-use equipment)
-    press_key(enigo, Key::Unicode('q'))?;
+    press_key(enigo, Key::Unicode('q'), 50)?;
+    
+    // Wait between keys to ensure each registers
     thread::sleep(Duration::from_millis(add_jitter(base_timing)));
     
     // Press 1 (switch back to gun)
-    press_key(enigo, Key::Unicode('1'))?;
+    press_key(enigo, Key::Unicode('1'), 50)?;
     
     Ok(())
 }
 
-/// Press and release a key with realistic hold time
-fn press_key(enigo: &mut Enigo, key: Key) -> EnigoResult<()> {
+/// Press and release a key with specified hold time
+fn press_key(enigo: &mut Enigo, key: Key, hold_ms: u64) -> EnigoResult<()> {
     enigo.key(key, Direction::Press)?;
-    thread::sleep(Duration::from_millis(add_jitter(20))); // Hold for ~20ms
+    thread::sleep(Duration::from_millis(add_jitter(hold_ms)));
     enigo.key(key, Direction::Release)?;
     Ok(())
 }
@@ -134,7 +132,7 @@ fn press_key(enigo: &mut Enigo, key: Key) -> EnigoResult<()> {
 /// Add random jitter to timing to avoid detection
 fn add_jitter(base_ms: u64) -> u64 {
     let mut rng = rand::thread_rng();
-    let jitter: i64 = rng.gen_range(-10..=10); // ±10ms jitter
+    let jitter: i64 = rng.gen_range(-5..=5); // Reduced jitter to ±5ms for more consistency
     let result = (base_ms as i64 + jitter).max(5) as u64; // Minimum 5ms
     result
 }
