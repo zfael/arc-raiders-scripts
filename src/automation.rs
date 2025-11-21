@@ -87,6 +87,13 @@ pub fn start_automation(state: AppState, rx: Receiver<InputEvent>) -> anyhow::Re
                             println!("🔫 Switched to Weapon Slot 2 - Reload Cancel: {}", if enabled { "ON" } else { "OFF" });
                         }
                     }
+                    InputEvent::QKeyPressed => {
+                        // Disable reload cancel when Q is pressed (using item)
+                        if state.is_reload_cancel_enabled() {
+                            state.set_reload_cancel_enabled(false);
+                            println!("⭕ RELOAD CANCEL DISABLED (Q key pressed - using item)");
+                        }
+                    }
                 }
             }
 

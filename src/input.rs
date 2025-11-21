@@ -10,6 +10,7 @@ pub enum InputEvent {
     ToggleReloadCancel, // F2 key to toggle reload cancel
     WeaponSlot1,        // 1 key pressed
     WeaponSlot2,        // 2 key pressed
+    QKeyPressed,        // Q key pressed (disable reload cancel)
 }
 
 /// Start listening for input events in a background thread
@@ -36,6 +37,9 @@ pub fn start_listener(state: AppState, tx: Sender<InputEvent>) -> anyhow::Result
                     }
                     EventType::KeyPress(rdev::Key::Num2) | EventType::KeyPress(rdev::Key::Kp2) => {
                         let _ = tx.send(InputEvent::WeaponSlot2);
+                    }
+                    EventType::KeyPress(rdev::Key::KeyQ) => {
+                        let _ = tx.send(InputEvent::QKeyPressed);
                     }
                     _ => {}
                 }
