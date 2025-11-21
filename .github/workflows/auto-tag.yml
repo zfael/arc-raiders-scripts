@@ -112,7 +112,7 @@ jobs:
           # Push tag (token is already configured in checkout action)
           echo "Pushing tag $NEW_VERSION..."
           git push origin "$NEW_VERSION" || {
-            echo "❌ Failed to push tag
+            echo "❌ Failed to push tag"
             exit 1
           }
           
