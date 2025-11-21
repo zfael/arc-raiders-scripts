@@ -15,9 +15,7 @@ A gaming automation tool for Arc Raiders with semi-auto fire rate enhancement an
 
 Download pre-built binaries from the [Releases](https://github.com/zfael/arc-raiders-scripts/releases) page:
 
-- **Windows (Primary)**: `arc-raiders-scripts-windows-x64.exe`
-- **macOS Intel**: `arc-raiders-scripts-macos-x64`
-- **macOS Apple Silicon**: `arc-raiders-scripts-macos-arm64`
+- **Windows**: `arc-raiders-scripts-v{version}-windows-x64.exe`
 
 ## Features
 
@@ -26,14 +24,9 @@ Download pre-built binaries from the [Releases](https://github.com/zfael/arc-rai
 
 ## Requirements
 
-### Windows (Primary Platform)
 - Windows 10 or later
 - Administrator privileges (automatically requested on launch)
-
-### macOS (Testing Only)
-- macOS 10.15 or later
-- Accessibility permissions (prompted on first run)
-- Input Monitoring permissions (prompted on first run)
+- [Interception driver](https://github.com/oblitum/Interception) for input simulation
 
 ## Building
 
@@ -41,31 +34,24 @@ Download pre-built binaries from the [Releases](https://github.com/zfael/arc-rai
 # Build for release
 cargo build --release
 
-# Build for specific target
-cargo build --release --target x86_64-pc-windows-msvc    # Windows
-cargo build --release --target x86_64-apple-darwin       # macOS Intel
-cargo build --release --target aarch64-apple-darwin      # macOS ARM
-
 # Run in development
 cargo run
 ```
 
-The compiled binary will be in `target/release/arc-raiders-scripts` (or `.exe` on Windows).
+The compiled binary will be in `target/release/arc-raiders-scripts.exe`.
 
 ## Releasing
 
-To create a new release with pre-built binaries:
+This project uses automated releases via GitHub Actions with conventional commits:
 
-1. Create and push a new tag:
-   ```bash
-   git tag v1.0.0
-   git push origin v1.0.0
-   ```
+- `feat:` commits trigger a minor version bump (v1.0.0 → v1.1.0)
+- `fix:` commits trigger a patch version bump (v1.0.0 → v1.0.1)
+- `feat!:` or `BREAKING CHANGE:` trigger a major version bump (v1.0.0 → v2.0.0)
 
-2. GitHub Actions will automatically:
-   - Build for Windows, macOS Intel, and macOS ARM
-   - Create a new release
-   - Upload all binaries as downloadable assets
+GitHub Actions will automatically:
+- Build for Windows x64
+- Create a new release
+- Upload the binary as a downloadable asset
 
 ## Usage
 
@@ -90,17 +76,17 @@ To create a new release with pre-built binaries:
 ### Reload Cancel
 - Triggers on every left mouse click
 - Executes key sequence: Q (quick-use) → 1 (weapon switch back)
-- Timing is configurable (default: 75ms on Windows, 100ms on macOS)
+- Timing is configurable (default: 75ms)
 - Includes random jitter (±5ms) for realistic timing
 - Key hold time: 50ms for reliable registration
 
 ## Technical Details
 
-- **GUI Framework**: egui/eframe for cross-platform native UI
+- **GUI Framework**: egui/eframe for native UI
 - **Input Listening**: rdev for capturing mouse/keyboard events
-- **Input Simulation**: enigo for sending synthetic inputs
+- **Input Simulation**: Interception driver for kernel-level input injection
 - **Concurrency**: Multi-threaded architecture with lock-free channels
-- **Timing**: Platform-specific high-resolution timing (1ms precision on Windows)
+- **Timing**: High-resolution timing (1ms precision)
 
 ## Architecture
 
@@ -109,34 +95,28 @@ GUI Thread (egui)
     ↓ Shared State (Arc<RwLock>)
 Input Listener (rdev)
     ↓ Event Channel
-Automation Engine (enigo)
+Automation Engine (Interception)
 ```
 
-## Platform-Specific Notes
+## Notes
 
-### Windows
 - Requires UAC elevation (embedded manifest handles this)
-- Uses native Windows `SendInput()` API for better anti-cheat compatibility
+- Uses Interception driver for kernel-level input injection
 - High-resolution timer enabled (1ms precision)
-- May be blocked by kernel-level anti-cheat systems
 - Event filtering prevents synthetic clicks from causing stuck firing
-
-### macOS
-- Requires Accessibility permissions grant
-- Requires Input Monitoring permissions grant
-- System will prompt on first use
-- Higher input latency than Windows (~10-20ms)
+- Supports F1 toggle for rapid fire, F2 toggle for reload cancel, Q to disable reload cancel
 
 ## Troubleshooting
 
-### Windows: "Input not working in game"
+### "Input not working in game"
 - Ensure the application is running as Administrator
-- Check if the game is also running as Administrator
-- Some games with anti-cheat may block all input automation
+- Verify Interception driver is installed correctly
+- Check if the game has kernel-level anti-cheat (may block driver)
 
-### macOS: "Failed to listen for events"
-- Go to System Preferences → Security & Privacy → Privacy
-- Add the application to Accessibility and Input Monitoring
+### "Interception driver not found"
+- Download and install the [Interception driver](https://github.com/oblitum/Interception)
+- Copy `interception.dll` to the same folder as the executable
+- Restart your computer after driver installation
 
 ### "Macro timing feels wrong"
 - Adjust the timing sliders in the GUI
