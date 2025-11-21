@@ -138,7 +138,7 @@ impl eframe::App for MacroApp {
             
             // Feature checkboxes
             let mut semiauto = self.state.is_semiauto_enabled();
-            if ui.checkbox(&mut semiauto, "Semiauto Max Fire Rate").changed() {
+            if ui.checkbox(&mut semiauto, "Semiauto Max Fire Rate (not working)").changed() {
                 self.state.set_semiauto_enabled(semiauto);
             }
             ui.label("  • Hold left mouse button to rapid-fire semi-auto weapons");
@@ -161,6 +161,19 @@ impl eframe::App for MacroApp {
                 if ui.radio_value(&mut weapon_slot, 2, "Slot 2").changed() {
                     self.state.set_reload_cancel_weapon_slot(2);
                 }
+            });
+            
+            // Auto-toggle by weapon checkbox
+            ui.horizontal(|ui| {
+                ui.add_space(20.0);
+                let mut auto_toggle = self.state.get_auto_toggle_by_weapon();
+                if ui.checkbox(&mut auto_toggle, "Auto-toggle by weapon slot").changed() {
+                    self.state.set_auto_toggle_by_weapon(auto_toggle);
+                }
+            });
+            ui.horizontal(|ui| {
+                ui.add_space(20.0);
+                ui.label(egui::RichText::new("  • Only enable reload cancel on selected slot").small().color(egui::Color32::GRAY));
             });
             
             ui.add_space(15.0);

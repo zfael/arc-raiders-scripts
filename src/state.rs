@@ -25,6 +25,12 @@ struct AppStateInner {
     /// Weapon slot for reload cancel (1 or 2)
     pub reload_cancel_weapon_slot: u8,
     
+    /// Auto-toggle reload cancel based on active weapon slot
+    pub auto_toggle_by_weapon: bool,
+    
+    /// Currently active weapon slot (1 or 2)
+    pub current_weapon_slot: u8,
+    
     /// Whether mouse is currently held down
     pub mouse_held: bool,
     
@@ -40,6 +46,8 @@ impl Default for AppStateInner {
             reload_cancel_timing: crate::platform::get_default_timing(),
             semiauto_timing: 60, // 60ms = ~16.6 clicks/second
             reload_cancel_weapon_slot: 1, // Default to weapon slot 1
+            auto_toggle_by_weapon: false,
+            current_weapon_slot: 1, // Start on weapon slot 1
             mouse_held: false,
             last_click_time: None,
         }
@@ -97,6 +105,25 @@ impl AppState {
     
     pub fn set_reload_cancel_weapon_slot(&self, slot: u8) {
         self.inner.write().reload_cancel_weapon_slot = slot.clamp(1, 2);
+    }
+    
+    pub fn get_auto_toggle_by_weapon(&self) -> bool {
+        self.inner.read().auto_toggle_by_weapon
+    }
+    
+    pub fn set_auto_toggle_by_weapon(&self, enabled: bool) {
+        self.inner.write().auto_toggle_by_weapon = enabled;
+    }
+    
+    pub fn set_current_weapon_slot(&self, slot: u8) {
+        let mut inner = self.inner.write();
+        inner.current_weapon_slot = slot.clamp(1, 2);
+        
+        // Auto-toggle reload cancel if feature is enabled
+        if inner.auto_toggle_by_weapon {
+            let should_enable = slot == inner.reload_cancel_weapon_slot;
+            inner.reload_cancel_enabled = should_enable;
+        }
     }
     
     pub fn set_mouse_held(&self, held: bool) {

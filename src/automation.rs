@@ -73,6 +73,20 @@ pub fn start_automation(state: AppState, rx: Receiver<InputEvent>) -> anyhow::Re
                             println!("⭕ RELOAD CANCEL DISABLED");
                         }
                     }
+                    InputEvent::WeaponSlot1 => {
+                        state.set_current_weapon_slot(1);
+                        if state.get_auto_toggle_by_weapon() {
+                            let enabled = state.is_reload_cancel_enabled();
+                            println!("🔫 Switched to Weapon Slot 1 - Reload Cancel: {}", if enabled { "ON" } else { "OFF" });
+                        }
+                    }
+                    InputEvent::WeaponSlot2 => {
+                        state.set_current_weapon_slot(2);
+                        if state.get_auto_toggle_by_weapon() {
+                            let enabled = state.is_reload_cancel_enabled();
+                            println!("🔫 Switched to Weapon Slot 2 - Reload Cancel: {}", if enabled { "ON" } else { "OFF" });
+                        }
+                    }
                 }
             }
 
