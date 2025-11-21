@@ -62,13 +62,14 @@ jobs:
         shell: bash
         run: |
           mkdir -p artifacts
-          cp target/${{ matrix.target }}/release/${{ matrix.artifact_name }} artifacts/${{ matrix.asset_name }}
+          VERSION="${GITHUB_REF#refs/tags/}"
+          cp target/${{ matrix.target }}/release/${{ matrix.artifact_name }} artifacts/${{ matrix.asset_name }}-${VERSION}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.asset_name }}
-          path: artifacts/${{ matrix.asset_name }}
+          name: ${{ matrix.asset_name }}-${{ github.ref_name }}
+          path: artifacts/${{ matrix.asset_name }}-${{ github.ref_name }}
 
   release:
     name: Create Release
@@ -93,18 +94,18 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            artifacts/arc-raiders-scripts-windows-x64.exe/arc-raiders-scripts-windows-x64.exe
-            artifacts/arc-raiders-scripts-macos-x64/arc-raiders-scripts-macos-x64
-            artifacts/arc-raiders-scripts-macos-arm64/arc-raiders-scripts-macos-arm64
+            artifacts/arc-raiders-scripts-windows-x64-${{ github.ref_name }}/arc-raiders-scripts-windows-x64-${{ github.ref_name }}
+            artifacts/arc-raiders-scripts-macos-x64-${{ github.ref_name }}/arc-raiders-scripts-macos-x64-${{ github.ref_name }}
+            artifacts/arc-raiders-scripts-macos-arm64-${{ github.ref_name }}/arc-raiders-scripts-macos-arm64-${{ github.ref_name }}
           body: |
             ## Arc Raiders Scripts ${{ github.ref_name }}
             
             ⚠️ **WARNING**: Using macros may violate game Terms of Service and result in account bans. Use at your own risk!
             
             ### Downloads
-            - **Windows** (Primary): `arc-raiders-scripts-windows-x64.exe` - Requires Administrator privileges
-            - **macOS Intel**: `arc-raiders-scripts-macos-x64` - Requires Accessibility & Input Monitoring permissions
-            - **macOS Apple Silicon**: `arc-raiders-scripts-macos-arm64` - Requires Accessibility & Input Monitoring permissions
+            - **Windows** (Primary): `arc-raiders-scripts-windows-x64-${{ github.ref_name }}` - Requires Administrator privileges
+            - **macOS Intel**: `arc-raiders-scripts-macos-x64-${{ github.ref_name }}` - Requires Accessibility & Input Monitoring permissions
+            - **macOS Apple Silicon**: `arc-raiders-scripts-macos-arm64-${{ github.ref_name }}` - Requires Accessibility & Input Monitoring permissions
             
             ### Features
             - Semi-auto max fire rate
