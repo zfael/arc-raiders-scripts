@@ -11,23 +11,13 @@ permissions:
 
 jobs:
   build:
-    name: Build ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    name: Build Windows
+    runs-on: windows-latest
     strategy:
       matrix:
         include:
-          - os: windows-latest
-            target: x86_64-pc-windows-msvc
+          - target: x86_64-pc-windows-msvc
             artifact_name: arc-raiders-scripts.exe
-            asset_name: arc-raiders-scripts-windows-x64.exe
-          - os: macos-latest
-            target: x86_64-apple-darwin
-            artifact_name: arc-raiders-scripts
-            asset_name: arc-raiders-scripts-macos-x64
-          - os: macos-latest
-            target: aarch64-apple-darwin
-            artifact_name: arc-raiders-scripts
-            asset_name: arc-raiders-scripts-macos-arm64
 
     steps:
       - uses: actions/checkout@v4
@@ -63,13 +53,13 @@ jobs:
         run: |
           mkdir -p artifacts
           VERSION="${GITHUB_REF#refs/tags/}"
-          cp target/${{ matrix.target }}/release/${{ matrix.artifact_name }} artifacts/${{ matrix.asset_name }}-${VERSION}
+          cp target/${{ matrix.target }}/release/${{ matrix.artifact_name }} artifacts/arc-raiders-scripts-${VERSION}-windows-x64.exe
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.asset_name }}-${{ github.ref_name }}
-          path: artifacts/${{ matrix.asset_name }}-${{ github.ref_name }}
+          name: arc-raiders-scripts-${{ github.ref_name }}-windows-x64
+          path: artifacts/arc-raiders-scripts-${{ github.ref_name }}-windows-x64.exe
 
   release:
     name: Create Release
@@ -94,18 +84,14 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            artifacts/arc-raiders-scripts-windows-x64-${{ github.ref_name }}/arc-raiders-scripts-windows-x64-${{ github.ref_name }}
-            artifacts/arc-raiders-scripts-macos-x64-${{ github.ref_name }}/arc-raiders-scripts-macos-x64-${{ github.ref_name }}
-            artifacts/arc-raiders-scripts-macos-arm64-${{ github.ref_name }}/arc-raiders-scripts-macos-arm64-${{ github.ref_name }}
+            artifacts/arc-raiders-scripts-${{ github.ref_name }}-windows-x64/arc-raiders-scripts-${{ github.ref_name }}-windows-x64.exe
           body: |
             ## Arc Raiders Scripts ${{ github.ref_name }}
             
             ⚠️ **WARNING**: Using macros may violate game Terms of Service and result in account bans. Use at your own risk!
             
             ### Downloads
-            - **Windows** (Primary): `arc-raiders-scripts-windows-x64-${{ github.ref_name }}` - Requires Administrator privileges
-            - **macOS Intel**: `arc-raiders-scripts-macos-x64-${{ github.ref_name }}` - Requires Accessibility & Input Monitoring permissions
-            - **macOS Apple Silicon**: `arc-raiders-scripts-macos-arm64-${{ github.ref_name }}` - Requires Accessibility & Input Monitoring permissions
+            - **Windows**: `arc-raiders-scripts-${{ github.ref_name }}-windows-x64.exe` - Requires Administrator privileges and Interception driver
             
             ### Features
             - Semi-auto max fire rate
